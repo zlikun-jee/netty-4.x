@@ -12,5 +12,13 @@
     <artifactId>netty-4.x-netty-in-action</artifactId>
     <description>《Netty in Action》章节测试代码</description>
 
+    <dependencies>
+
+        <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java</artifactId>
+        </dependency>
+
+    </dependencies>
 
 </project>
