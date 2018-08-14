@@ -10,6 +10,7 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>netty-4.x-netty-in-action</module>
     </modules>
 
     <properties>
