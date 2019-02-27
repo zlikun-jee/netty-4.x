@@ -1,13 +1,12 @@
 package com.zlikun.jee.j04;
 
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
-import io.netty.channel.*;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.EventLoopGroup;
 import io.netty.channel.oio.OioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.oio.OioServerSocketChannel;
-import io.netty.util.CharsetUtil;
 
 /**
  * 使用Netty实现一个OIO版本的服务器，再实现一个NIO版本的服务器，可以看出两者代码结构基本一致<br>
@@ -20,7 +19,6 @@ public class NettyOioServer implements NettyServer {
 
     @Override
     public void server(int port) throws InterruptedException {
-        final ByteBuf buf = Unpooled.unreleasableBuffer(Unpooled.copiedBuffer("Hi\r\n", CharsetUtil.UTF_8));
         EventLoopGroup group = new OioEventLoopGroup();
         try {
             ServerBootstrap bootstrap = new ServerBootstrap();
@@ -30,13 +28,7 @@ public class NettyOioServer implements NettyServer {
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         protected void initChannel(SocketChannel ch) throws Exception {
-                            ch.pipeline().addLast(new ChannelInboundHandlerAdapter() {
-                                @Override
-                                public void channelActive(ChannelHandlerContext ctx) throws Exception {
-                                    ctx.writeAndFlush(buf.duplicate())
-                                            .addListener(ChannelFutureListener.CLOSE);
-                                }
-                            });
+                            ch.pipeline().addLast(new HiChannelHandler());
                         }
                     });
             ChannelFuture future = bootstrap.bind().sync();

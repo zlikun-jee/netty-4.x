@@ -24,4 +24,21 @@ class NettyServerTest {
         server.server(1234);
     }
 
+    @Test
+    public void epoll() throws InterruptedException {
+        server = new NettyEpollServer();
+        server.server(1234);
+    }
+
+    /**
+     * 测试未通过（还没搞明白）
+     *
+     * @throws InterruptedException
+     */
+    @Test
+    public void local() throws InterruptedException {
+        server = new NettyLocalServer();
+        server.server(1234);
+    }
+
 }

@@ -3,7 +3,9 @@ package com.zlikun.jee.j04;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.*;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
@@ -28,13 +30,7 @@ public class NettyNioServer implements NettyServer {
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         protected void initChannel(SocketChannel ch) throws Exception {
-                            ch.pipeline().addLast(new ChannelInboundHandlerAdapter() {
-                                @Override
-                                public void channelActive(ChannelHandlerContext ctx) throws Exception {
-                                    ctx.writeAndFlush(buf.duplicate())
-                                            .addListener(ChannelFutureListener.CLOSE);
-                                }
-                            });
+                            ch.pipeline().addLast(new HiChannelHandler());
                         }
                     });
             ChannelFuture future = bootstrap.bind().sync();
