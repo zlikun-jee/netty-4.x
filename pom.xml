@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.zlikun.netty</groupId>
-    <artifactId>zlikun-netty-sample</artifactId>
+    <artifactId>zlikun-java-netty</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 
     <name>${project.artifactId}</name>
