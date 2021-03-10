@@ -1,25 +1,27 @@
 package com.zlikun.netty.websocket;
 
 import io.netty.channel.*;
+import io.netty.channel.group.ChannelGroup;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
-import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
-import io.netty.handler.codec.http.websocketx.ContinuationWebSocketFrame;
-import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslHandler;
+import io.netty.handler.stream.ChunkedWriteHandler;
 
 import javax.net.ssl.SSLEngine;
 
 public class WebSocketInitializer extends ChannelInitializer<Channel> {
 
+    ChannelGroup group;
     SslContext sslContext;
 
-    public WebSocketInitializer() {
+    public WebSocketInitializer(ChannelGroup group) {
+        this(group, null);
     }
 
-    public WebSocketInitializer(SslContext sslContext) {
+    public WebSocketInitializer(ChannelGroup group, SslContext sslContext) {
+        this.group = group;
         this.sslContext = sslContext;
     }
 
@@ -35,37 +37,20 @@ public class WebSocketInitializer extends ChannelInitializer<Channel> {
 
         // 设置WebSocket相关Handler
         pipeline.addLast(
-                new HttpServerCodec(),
-                new HttpObjectAggregator(512 * 1024),
-                new WebSocketServerProtocolHandler("/websocket"),
-                new TextFrameHandler(),
-                new BinaryFrameHandler(),
-                new ContinuationFrameHandler()
+                // HTTP请求/响应编码
+                new HttpServerCodec()
+                // 写入一个文件的内容
+                , new ChunkedWriteHandler()
+                // 消息聚合，合并为FullHttpRequest和FullHttpResponse实例
+                , new HttpObjectAggregator(512 * 1024)
+                // 处理FullHttpRequest（不发送到/ws URI的请求）
+                , new HttpRequestHandler("/ws")
+                , new WebSocketServerProtocolHandler("/ws")
+                , new TextWebSocketFrameHandler(this.group)
+//                , new BinaryWebSocketFrameHandler()
+//                , new ContinuationWebSocketFrameHandler()
         );
-    }
 
-    class TextFrameHandler extends SimpleChannelInboundHandler<TextWebSocketFrame> {
-
-        @Override
-        protected void channelRead0(ChannelHandlerContext ctx, TextWebSocketFrame msg) throws Exception {
-
-        }
-    }
-
-    class BinaryFrameHandler extends SimpleChannelInboundHandler<BinaryWebSocketFrame> {
-
-        @Override
-        protected void channelRead0(ChannelHandlerContext ctx, BinaryWebSocketFrame msg) throws Exception {
-
-        }
-    }
-
-    class ContinuationFrameHandler extends SimpleChannelInboundHandler<ContinuationWebSocketFrame> {
-
-        @Override
-        protected void channelRead0(ChannelHandlerContext ctx, ContinuationWebSocketFrame msg) throws Exception {
-
-        }
     }
 
 }
